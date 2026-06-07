@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>쪽지시험</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root {
+    --bg: #0f1a14;
+    --bg-soft: #16241c;
+    --card: #1d2f25;
+    --ink: #eef5ef;
+    --ink-dim: #9db4a5;
+    --accent: #ffd166;
+    --accent-deep: #e6a817;
+    --good: #4ade80;
+    --bad: #f87171;
+    --line: #2c4435;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Pretendard", -apple-system, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #1e3a2a 0%, transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, #14251c 0%, transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+  }
+  .app { width: 100%; max-width: 640px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 36px 32px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    animation: rise .5s ease both;
+  }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .eyebrow {
+    display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .18em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 10px;
+  }
+  h1 { font-size: 26px; font-weight: 800; line-height: 1.3; }
+  .sub { color: var(--ink-dim); margin-top: 10px; font-size: 15px; line-height: 1.6; }
+
+  /* 이름 입력 */
+  .name-row { margin-top: 28px; display: flex; flex-direction: column; gap: 12px; }
+  input[type="text"] {
+    width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit;
+    background: var(--bg-soft); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 12px; outline: none;
+    transition: border-color .2s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  .btn {
+    appearance: none; border: none; cursor: pointer; font-family: inherit;
+    background: var(--accent); color: #1a1505;
+    font-size: 16px; font-weight: 800; padding: 14px 20px; border-radius: 12px;
+    transition: transform .12s, background .2s;
+  }
+  .btn:hover { background: var(--accent-deep); transform: translateY(-1px); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; transform: none; }
+  .btn.ghost { background: transparent; color: var(--ink-dim); border: 1.5px solid var(--line); font-weight: 600; }
+
+  /* 진행 바 */
+  .progress { margin-bottom: 22px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-dim); margin-bottom: 8px; }
+  .progress-track { height: 6px; background: var(--bg-soft); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-deep)); border-radius: 99px; transition: width .35s ease; }
+
+  /* 문항 */
+  .qtext { font-size: 20px; font-weight: 700; line-height: 1.5; margin-bottom: 22px; }
+  .choices { display: flex; flex-direction: column; gap: 10px; }
+  .choice {
+    display: flex; align-items: center; gap: 12px; text-align: left;
+    width: 100%; padding: 14px 16px; font-size: 15.5px; font-family: inherit; line-height: 1.45;
+    background: var(--bg-soft); color: var(--ink);
+    border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .choice:hover { border-color: var(--accent); }
+  .choice.selected { border-color: var(--accent); background: #2a3d2e; }
+  .choice .num {
+    flex-shrink: 0; width: 26px; height: 26px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; background: var(--card); color: var(--ink-dim);
+    border: 1px solid var(--line);
+  }
+  .choice.selected .num { background: var(--accent); color: #1a1505; border-color: var(--accent); }
+  .nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 26px; }
+
+  /* 결과 */
+  .score-ring { text-align: center; margin: 18px 0 8px; }
+  .score-big { font-size: 64px; font-weight: 900; color: var(--accent); line-height: 1; }
+  .score-sub { color: var(--ink-dim); margin-top: 8px; font-size: 15px; }
+  .verdict { text-align: center; font-size: 17px; font-weight: 700; margin-top: 14px; }
+  .review { margin-top: 28px; display: flex; flex-direction: column; gap: 10px; }
+  .review-item {
+    padding: 14px 16px; border-radius: 12px; background: var(--bg-soft);
+    border-left: 4px solid var(--good); font-size: 14px; line-height: 1.55;
+  }
+  .review-item.wrong { border-left-color: var(--bad); }
+  .review-item .rq { font-weight: 700; margin-bottom: 6px; }
+  .review-item .ra { color: var(--ink-dim); }
+  .review-item .ra b { color: var(--ink); font-weight: 600; }
+  .tag { font-size: 12px; font-weight: 800; margin-right: 6px; }
+  .tag.ok { color: var(--good); } .tag.no { color: var(--bad); }
+  .loading, .error-box { text-align: center; color: var(--ink-dim); padding: 30px 0; line-height: 1.7; }
+  .error-box { color: var(--bad); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="card" id="card">
+    <!-- 화면은 JS로 렌더링 -->
+    <div class="loading" id="boot">문제를 불러오는 중…</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+/* ============================================================
+ * 설정 — Supabase 프로젝트 정보를 입력하세요.
+ * 비워두면 아래 EMBEDDED_QUESTIONS(내장 문제)로 동작합니다.
+ * ============================================================ */
+const SUPABASE_URL = "https://szlgdmrgotrjrvhvpchi.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6bGdkbXJnb3RyanJ2aHZwY2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTgzNTIsImV4cCI6MjA5NjM5NDM1Mn0.pdMRWOHhJd7R3bwWs7IzesjJlioNDiPeAeezxCasHAs";
+
+const QUIZ_TITLE = "3차 쪽지시험";
+const QUIZ_DESC  = "이름을 입력한 뒤 시험을 시작하세요. 문항을 모두 풀면 즉시 점수가 표시됩니다.";
+const SHUFFLE_QUESTIONS = true;   // 문항 순서 섞기
+
+/* 내장 문제 (Supabase 미설정 시 사용)
+ * 형식: { q: "질문", choices: ["보기1", ...4~5개], answer: 정답인덱스(0부터) } */
+const EMBEDDED_QUESTIONS = [
+  { q: "샘플 문항입니다. 실제 문제로 교체해 주세요. 1+1은?", choices: ["1", "2", "3", "4"], answer: 1 },
+  { q: "샘플 문항 2. 대한민국의 수도는?", choices: ["부산", "대전", "서울", "광주", "인천"], answer: 2 },
+];
+
+/* ============================================================ */
+const card = document.getElementById("card");
+let questions = [];
+let userName = "";
+let current = 0;
+let answers = [];   // 사용자가 고른 인덱스 (미응답: null)
+
+init();
+
+async function init() {
+  try {
+    questions = await loadQuestions();
+    if (!questions.length) throw new Error("등록된 문제가 없습니다.");
+    if (SHUFFLE_QUESTIONS) shuffle(questions);
+    answers = new Array(questions.length).fill(null);
+    renderNameScreen();
+  } catch (e) {
+    card.innerHTML = `<div class="error-box">문제를 불러오지 못했습니다.<br>${escapeHtml(e.message || String(e))}</div>`;
+  }
+}
+
+async function loadQuestions() {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data, error } = await client
+      .from("quiz_questions")
+      .select("question, choices, answer")
+      .order("ord", { ascending: true });
+    if (error) throw new Error("Supabase 오류: " + error.message);
+    return (data || []).map(r => ({
+      q: r.question,
+      choices: Array.isArray(r.choices) ? r.choices : JSON.parse(r.choices),
+      answer: r.answer,
+    }));
+  }
+  return EMBEDDED_QUESTIONS.slice();
+}
+
+/* ---------- 화면 1: 이름 입력 ---------- */
+function renderNameScreen() {
+  card.innerHTML = `
+    <span class="eyebrow">Quiz</span>
+    <h1>${escapeHtml(QUIZ_TITLE)}</h1>
+    <p class="sub">${escapeHtml(QUIZ_DESC)}<br>총 <b>${questions.length}문항</b> · 객관식</p>
+    <div class="name-row">
+      <input type="text" id="nameInput" placeholder="이름을 입력하세요" maxlength="30" autocomplete="off">
+      <button class="btn" id="startBtn" disabled>시험 시작</button>
+    </div>`;
+  const input = document.getElementById("nameInput");
+  const btn = document.getElementById("startBtn");
+  input.addEventListener("input", () => { btn.disabled = input.value.trim().length === 0; });
+  input.addEventListener("keydown", e => { if (e.key === "Enter" && !btn.disabled) btn.click(); });
+  btn.addEventListener("click", () => {
+    userName = input.value.trim();
+    current = 0;
+    renderQuestion();
+  });
+  input.focus();
+}
+
+/* ---------- 화면 2: 문항 ---------- */
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  const pct = Math.round((current / total) * 100);
+  card.innerHTML = `
+    <div class="progress">
+      <div class="progress-meta">
+        <span>${escapeHtml(userName)} 님</span>
+        <span>${current + 1} / ${total}</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div class="qtext">Q${current + 1}. ${escapeHtml(q.q)}</div>
+    <div class="choices" id="choices">
+      ${q.choices.map((c, i) => `
+        <button class="choice ${answers[current] === i ? "selected" : ""}" data-i="${i}">
+          <span class="num">${i + 1}</span><span>${escapeHtml(c)}</span>
+        </button>`).join("")}
+    </div>
+    <div class="nav">
+      <button class="btn ghost" id="prevBtn" ${current === 0 ? "disabled" : ""}>이전</button>
+      <button class="btn" id="nextBtn" ${answers[current] === null ? "disabled" : ""}>
+        ${current === total - 1 ? "제출하기" : "다음"}
+      </button>
+    </div>`;
+
+  document.querySelectorAll(".choice").forEach(el => {
+    el.addEventListener("click", () => {
+      answers[current] = Number(el.dataset.i);
+      document.querySelectorAll(".choice").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+      document.getElementById("nextBtn").disabled = false;
+    });
+  });
+  document.getElementById("prevBtn").addEventListener("click", () => { current--; renderQuestion(); });
+  document.getElementById("nextBtn").addEventListener("click", () => {
+    if (current === total - 1) renderResult();
+    else { current++; renderQuestion(); }
+  });
+}
+
+/* ---------- 화면 3: 결과 ---------- */
+function renderResult() {
+  const total = questions.length;
+  const correct = questions.reduce((n, q, i) => n + (answers[i] === q.answer ? 1 : 0), 0);
+  const score = Math.round((correct / total) * 100);
+  const verdict =
+    score === 100 ? "🎉 만점입니다! 완벽해요." :
+    score >= 80   ? "👏 훌륭합니다!" :
+    score >= 60   ? "🙂 잘했어요. 틀린 문제를 복습해 보세요." :
+                    "📚 아쉽네요. 다시 한번 도전해 보세요!";
+
+  card.innerHTML = `
+    <span class="eyebrow">Result</span>
+    <h1>${escapeHtml(userName)} 님의 결과</h1>
+    <div class="score-ring">
+      <div class="score-big">${score}점</div>
+      <div class="score-sub">${total}문항 중 <b>${correct}개</b> 정답</div>
+    </div>
+    <div class="verdict">${verdict}</div>
+    <div class="review">
+      ${questions.map((q, i) => {
+        const ok = answers[i] === q.answer;
+        return `
+        <div class="review-item ${ok ? "" : "wrong"}">
+          <div class="rq"><span class="tag ${ok ? "ok" : "no"}">${ok ? "정답" : "오답"}</span>Q${i + 1}. ${escapeHtml(q.q)}</div>
+          <div class="ra">내 답: <b>${escapeHtml(q.choices[answers[i]] ?? "-")}</b>${ok ? "" : ` · 정답: <b>${escapeHtml(q.choices[q.answer])}</b>`}</div>
+        </div>`;
+      }).join("")}
+    </div>
+    <div class="nav" style="justify-content:center">
+      <button class="btn ghost" id="retryBtn">다시 풀기</button>
+    </div>`;
+  document.getElementById("retryBtn").addEventListener("click", () => {
+    answers = new Array(questions.length).fill(null);
+    if (SHUFFLE_QUESTIONS) shuffle(questions);
+    current = 0;
+    renderNameScreen();
+  });
+}
+
+/* ---------- 유틸 ---------- */
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+}
+</script>
+</body>
+</html>
