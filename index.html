@@ -135,7 +135,7 @@
 const SUPABASE_URL = "https://szlgdmrgotrjrvhvpchi.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN6bGdkbXJnb3RyanJ2aHZwY2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA4MTgzNTIsImV4cCI6MjA5NjM5NDM1Mn0.pdMRWOHhJd7R3bwWs7IzesjJlioNDiPeAeezxCasHAs";
 
-const QUIZ_TITLE = "3차 쪽지시험";
+const QUIZ_TITLE = "쪽지시험";
 const QUIZ_DESC  = "이름을 입력한 뒤 시험을 시작하세요. 문항을 모두 풀면 즉시 점수가 표시됩니다.";
 const SHUFFLE_QUESTIONS = true;   // 문항 순서 섞기
 
@@ -191,7 +191,7 @@ function renderNameScreen() {
     <h1>${escapeHtml(QUIZ_TITLE)}</h1>
     <p class="sub">${escapeHtml(QUIZ_DESC)}<br>총 <b>${questions.length}문항</b> · 객관식</p>
     <div class="name-row">
-      <input type="text" id="nameInput" placeholder="이름을 입력하세요" maxlength="30" autocomplete="off">
+      <input type="text" id="nameInput" placeholder="닉네임을 입력하세요" maxlength="30" autocomplete="off">
       <button class="btn" id="startBtn" disabled>시험 시작</button>
     </div>`;
   const input = document.getElementById("nameInput");
